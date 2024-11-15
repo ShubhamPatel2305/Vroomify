@@ -23,6 +23,12 @@ const generateRandomOTP = () => {
 
 // User Schema
 const UserSchema = new mongoose.Schema({
+    id: {
+        type: String,
+        default: uuidv4,
+        required: true,
+        unique: true
+    },
     name: {
         type: String,
         required: true
