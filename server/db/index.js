@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 require('dotenv').config();
+const { v4: uuidv4 } = require('uuid');
 
 // Create a function to connect to MongoDB
 const connectDB = async () => {
@@ -118,4 +119,4 @@ const User = mongoose.model('User', UserSchema);
 const Car = mongoose.model('Car', CarSchema);
 
 //export
-module.exports = { User, Car };
+module.exports = { User, Car, connectDB };

@@ -147,7 +147,6 @@ async function tokenValidation(req,res,next){
 module.exports = {
     validateUserSignup,
     validateUserSignin,
-    userUpdateSchema,
     validateUserVerify,
     tokenValidation
 };
