@@ -14,7 +14,7 @@ const NavbarContainer = () => {
     localStorage.removeItem('username');
     localStorage.removeItem('email');
     checkAuthStatus();
-    navigate('/');
+    window.location.reload();
   }, [checkAuthStatus, navigate]);
 
   useEffect(() => {
