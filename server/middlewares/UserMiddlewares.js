@@ -106,7 +106,7 @@ async function validateUserVerify(req,res,next){
         next();
     } catch (error) {
         // If validation or email check fails, respond with the errors
-        return res.status(400).json({
+        return res.status(403).json({
             errors: [error.message], // Ensure to return a single error message for clarity
         });
     }

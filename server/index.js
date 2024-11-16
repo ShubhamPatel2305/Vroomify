@@ -9,7 +9,7 @@ const { connectDB } = require('./db');
 // Middleware for parsing request bodies
 app.use(bodyParser.json());
 app.use(cors());
-app.use("/user", userRouter);
+app.use("/api/v1/user", userRouter);
 
 const PORT = 3001;
 

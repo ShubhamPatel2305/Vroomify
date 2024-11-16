@@ -171,19 +171,13 @@ router.post("/verify",async (req,res)=>{
     const user=await User.findOne({email});
     //if no user found send error
     if(!user){
-        return res.status(400).json({
+        return res.status(401).json({
             errors: ["No user with this email exists."],
-        });
-    }
-    //if user found check if his state is not blocked
-    if(user.state==="blocked"){
-        return res.status(400).json({
-            errors: ["User is blocked."],
         });
     }
     //if user state is verified send message already verified
     if(user.state==="verified"){
-        return res.status(400).json({
+        return res.status(402).json({
             errors: ["User is already verified."],
         });
     }
@@ -207,15 +201,9 @@ router.put("/verify",validateUserVerify, async (req,res)=>{
             errors: ["No user with this email exists."],
         });
     }
-    //if user found check if his state is not blocked
-    if(userOne.state==="blocked"){
-        return res.status(400).json({
-            errors: ["User is blocked."],
-        });
-    }
     //if user state is verified send message already verified
     if(userOne.state==="verified"){
-        return res.status(400).json({
+        return res.status(401).json({
             errors: ["User is already verified."],
         });
     }
@@ -236,7 +224,7 @@ router.put("/verify",validateUserVerify, async (req,res)=>{
             joined_at:userOne.created
         });
     }else{
-        return res.status(400).json({
+        return res.status(402).json({
             errors: ["Enter a valid OTP."],
         });
     }
