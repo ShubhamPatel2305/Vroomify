@@ -52,6 +52,7 @@ const verifyOTP = async () => {
     if (response.status === 200) {
       toast.success('OTP verified successfully');
       localStorage.setItem('token', response.data.token);
+      localStorage.setItem('username',response.data.name);
       navigate("/");
     }
   } catch (error) {
