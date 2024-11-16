@@ -49,10 +49,11 @@ router.post("/signin", validateUserSignin,(req,res)=>{
     const token = jwt.sign({ email,user_id:req.user_id }, process.env.JWT_SECRET, {
         expiresIn: "12h",
     });
-    return res.json({
+    return res.status(200).json({
         message: "User signed in successfully.",
         token,
         name:req.user.name,
+        email:req.user.email,
         joined_at:req.user.created_at
     });
 })
@@ -254,6 +255,12 @@ router.get("/profile", tokenValidation, async (req,res)=>{
         });
     }
 
+})
+
+router.post("/verifyToken",tokenValidation,async (req,res)=>{
+    return res.status(200).json({
+        message: "Token is valid",
+    })
 })
 
 module.exports = router;
