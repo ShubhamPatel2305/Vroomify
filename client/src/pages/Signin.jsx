@@ -3,6 +3,7 @@ import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../hooks/index';
 
 import { z } from 'zod';
 
@@ -18,6 +19,14 @@ const SignIn = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [otpView, setOtpView] = useState(false);
   const navigate = useNavigate();
+  const { isLoggedIn } = useAuth(); // Use the isLoggedIn state from useAuth
+
+    useEffect(() => {
+    if (isLoggedIn) {
+        navigate('/'); // Redirect to Home page if already logged in
+    }
+    }, [isLoggedIn, navigate]);
+
 
   const validateField = (field, value) => {
     try {
