@@ -1,34 +1,36 @@
-const nodemailer = require('nodemailer');
-require("dotenv").config();
+const formData = require('form-data');
+const Mailgun = require('mailgun.js');
+require('dotenv').config();
 
-// Set up the Nodemailer transporter using Gmail SMTP
-const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-        user: 'noreply.teamsync@gmail.com',    // Your Gmail email address
-        pass: process.env.MAILER_PASS        // Your Gmail password or App Password (if 2FA is enabled)
-    }
-});
+// Initialize Mailgun client
+const mailgun = new Mailgun(formData);
+const mg = mailgun.client({ username: 'api', key: process.env.MAILGUN_API_KEY });
 
-// Function to send OTP email
+/**
+ * Send OTP email using Mailgun
+ * @param {string} recipientEmail - The email address of the recipient
+ * @param {string} otp - The one-time password to send
+ * @param {string} message - Custom message to include with the OTP
+ * @returns {Promise<void>}
+ */
 const sendOtpEmail = async (recipientEmail, otp, message) => {
     try {
-        const mailOptions = {
-            from: 'noreply.teamsync@gmail.com',        // Sender's email address
-            to: recipientEmail,                  // Recipient's email address
-            subject: 'Your OTP Code',            // Subject of the email
-            text: `${message}: ${otp}`     // Email body (plain text)
+        const data = {
+            from: 'Excited User <mailgun@sandbox58049ebfe17044809fd80e9f065cfcdd.mailgun.org>', 
+            to: recipientEmail,
+            subject: 'Your OTP Code',
+            text: `${message}: ${otp}`,
+            html: `<p>${message}: <strong>${otp}</strong></p>`,
         };
 
-        // Send email
-        const info = await transporter.sendMail(mailOptions);
-        console.log('Email sent: ' + info.response);
+        // Send the email
+        const response = await mg.messages.create('sandbox-123.mailgun.org', data); 
+        console.log('Email sent successfully:', response);
     } catch (error) {
-        console.error('Error sending email:', error);
+        console.error('Error sending OTP email:', error);
         throw new Error('Failed to send OTP email.');
     }
 };
 
-
-//export 
+// Export the sendOtpEmail function for use in other parts of the application
 module.exports = { sendOtpEmail };
