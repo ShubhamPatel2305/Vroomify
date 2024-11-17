@@ -1,12 +1,10 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { clearUserData, getUserData } from '../utils/TokenUtils';
 import NavbarContainer from '../components/NavbarContainer';
 import CarCard from '../components/CarCard';
 
 const Profile = () => {
-    const navigate = useNavigate();
     const [username, setUsername] = useState("U N");
     const [cars, setCars] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
