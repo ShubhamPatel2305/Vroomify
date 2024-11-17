@@ -43,7 +43,7 @@ const SignIn = () => {
       validationSchema.parse(formData); // Validate entire form before submitting
 
       setIsLoading(true);
-      const response = await axios.post('http://localhost:3001/api/v1/user/signin', formData);
+      const response = await axios.post('https://vroomify-shubhampatel2305s-projects.vercel.app/api/v1/user/signin', formData);
 
       if (response.status === 200) {
         // Store data in localStorage
@@ -150,7 +150,7 @@ const OTPVerification = () => {
         const sendOtp = async () => {
           setIsSendingAttempted(true); // Set the flag to true
           try {
-            const response = await axios.post('http://localhost:3001/api/v1/user/verify', {
+            const response = await axios.post('https://vroomify-shubhampatel2305s-projects.vercel.app/api/v1/user/verify', {
               email: localStorage.getItem('email'),
             });
   
@@ -178,7 +178,7 @@ const OTPVerification = () => {
   const verifyOTP = async () => {
     setIsLoading(true);
     try {
-      const response = await axios.put('http://localhost:3001/api/v1/user/verify', {
+      const response = await axios.put('https://vroomify-shubhampatel2305s-projects.vercel.app/api/v1/user/verify', {
         email: localStorage.getItem('email'),
         registerOtp: otp,
       });

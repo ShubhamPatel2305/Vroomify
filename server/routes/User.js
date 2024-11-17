@@ -160,36 +160,36 @@ router.put("/reset",async (req,res)=>{
     });
 })
 
-router.post("/verify",async (req,res)=>{
-    //extract email from req body
-    const {email}=req.body;
-    if(!email){
-        return res.status(400).json({
-            errors: ["Email is required."],
-        });
+router.post("/verify", async (req, res) => {
+    console.log("Received a POST request to /verify");
+    const { email } = req.body;
+
+    // Debug email presence
+    if (!email) {
+        console.log("No email provided");
+        return res.status(400).json({ errors: ["Email is required."] });
     }
-    //find user with that email
-    const user=await User.findOne({email});
-    //if no user found send error
-    if(!user){
-        return res.status(401).json({
-            errors: ["No user with this email exists."],
-        });
+
+    try {
+        const user = await User.findOne({ email });
+        if (!user) {
+            console.log("No user found with email:", email);
+            return res.status(401).json({ errors: ["No user with this email exists."] });
+        }
+
+        if (user.state === "verified") {
+            console.log("User is already verified");
+            return res.status(402).json({ errors: ["User is already verified."] });
+        }
+
+        console.log("Sending OTP email to:", user.email);
+        await sendOtpEmail(user.email, user.registration_otp, "Your OTP is:");
+        return res.status(200).json({ message: "OTP sent to user's email." });
+    } catch (error) {
+        console.error("Error in /verify route:", error.message);
+        res.status(500).json({ errors: ["Internal server error."] });
     }
-    //if user state is verified send message already verified
-    if(user.state==="verified"){
-        return res.status(402).json({
-            errors: ["User is already verified."],
-        });
-    }
-    //if user state is pending send otp to user email
-    //send otp to user email
-    await sendOtpEmail(user.email,user.registration_otp,"Your One Time Password(OTP) for verifying your account is: ");
-    return res.status(200).json({
-        message: "OTP sent to user's email.",
-    });
-    
-})
+});
 
 router.put("/verify",validateUserVerify, async (req,res)=>{
     //extract email and otp from req body
