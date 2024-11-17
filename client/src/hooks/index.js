@@ -26,8 +26,6 @@ const useAuth = () => {
         }
       } catch (error) {
         console.error('Error verifying token:', error);
-        localStorage.removeItem('token');
-        localStorage.removeItem('username');
         setIsLoggedIn(false);
         setUsername('');
       }
