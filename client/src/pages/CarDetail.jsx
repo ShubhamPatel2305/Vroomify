@@ -1,23 +1,62 @@
+/* eslint-disable react/prop-types */
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { Tag, Clock, User, ChevronLeft, ChevronRight, X } from 'lucide-react';
-import {getUserData} from '../utils/TokenUtils';
+import { Tag, Clock, User, ChevronLeft, ChevronRight, X, Trash2 } from 'lucide-react';
+import { getUserData } from '../utils/TokenUtils';
 import NavbarContainer from "../components/NavbarContainer"
+
+const Modal = ({ isOpen, onClose, onConfirm }) => {
+  if (!isOpen) return null;
+
+  return (
+    <div
+      className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50"
+      onClick={onClose}
+    >
+      <div
+        className="bg-white p-6 rounded-lg shadow-xl max-w-sm w-full mx-4 transform transition-all"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <h2 className="text-xl font-bold mb-4">Confirm Deletion</h2>
+        <p className="mb-6 text-gray-600">
+          Are you sure you want to delete this car listing? This action cannot be undone.
+        </p>
+        <div className="flex justify-end space-x-4">
+          <button
+            className="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300 transition-colors"
+            onClick={onClose}
+          >
+            Cancel
+          </button>
+          <button
+            className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition-colors"
+            onClick={onConfirm}
+          >
+            Yes, Delete
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const CarDetail = () => {
   const [car, setCar] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [isModalOpen, setModalOpen] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isFullScreen, setIsFullScreen] = useState(false);
   const { id } = useParams();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchCarDetails = async () => {
       try {
-        const {token}=getUserData();
+        const {token} = getUserData();
         const response = await axios.get(`https://vroomify-shubhampatel2305s-projects.vercel.app/api/v1/car/${id}`, {
           headers: {
             authorization: token
@@ -48,6 +87,55 @@ const CarDetail = () => {
 
     fetchCarDetails();
   }, [id]);
+
+  const openModal = () => {
+    setModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setModalOpen(false);
+  };
+
+  const confirmDelete = async () => {
+    setModalOpen(false);
+    setIsDeleting(true);
+    try {
+      const { token } = getUserData();
+      await axios.delete(
+        `https://vroomify-shubhampatel2305s-projects.vercel.app/api/v1/car/delete/${car._id}`,
+        {
+          headers: {
+            authorization: token,
+          },
+        }
+      );
+
+      toast.success("Car listing deleted successfully");
+      setTimeout(() => {
+        navigate("/profile");
+        window.location.reload();
+      }, 1500);
+    } catch (error) {
+      switch (error.response?.status) {
+        case 401:
+          toast.error("Unauthorized access. Please login again.");
+          break;
+        case 403:
+          toast.error("Car listing not found.");
+          break;
+        case 405:
+          toast.error("You do not have permission to delete this car listing.");
+          break;
+        case 500:
+          toast.error("Server error. Please try again later.");
+          break;
+        default:
+          toast.error("An error occurred while deleting the car listing.");
+      }
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   const nextImage = () => {
     setCurrentImageIndex((prev) => 
@@ -82,6 +170,9 @@ const CarDetail = () => {
     <NavbarContainer />
     <div className="min-h-screen bg-gray-50 p-4 md:p-8 mt-16">
       <ToastContainer position="top-right" autoClose={5000} />
+      {/* Modal */}
+      <Modal isOpen={isModalOpen} onClose={closeModal} onConfirm={confirmDelete} />
+
       
       {/* Card Container */}
       <div className="max-w-6xl mx-auto bg-white shadow-lg rounded-lg overflow-hidden">
@@ -191,15 +282,32 @@ const CarDetail = () => {
             </div>
 
             {/* Action Buttons */}
-            <div className="flex flex-wrap gap-3 pt-4">
-              <button className="px-4 py-2 bg-violet-600 text-white rounded-lg hover:bg-violet-700 
-                               transition-colors flex items-center">
-                Contact Seller
-              </button>
-              <button className="px-4 py-2 border border-violet-600 text-violet-600 rounded-lg 
-                               hover:bg-violet-50 transition-colors flex items-center">
-                Save for Later
-              </button>
+            <div className="flex flex-wrap gap-3 pt-4 justify-between items-center">
+              <div className="flex flex-wrap gap-3">
+                <button className="px-4 py-2 bg-violet-600 text-white rounded-lg hover:bg-violet-700 
+                                 transition-colors flex items-center">
+                  Contact Seller
+                </button>
+                <button className="px-4 py-2 border border-violet-600 text-violet-600 rounded-lg 
+                                 hover:bg-violet-50 transition-colors flex items-center">
+                  Save for Later
+                </button>
+              </div>
+              
+              {/* Delete Button */}
+              <button
+              onClick={openModal}
+              disabled={isDeleting}
+              className="px-4 py-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 
+                         transition-colors flex items-center gap-2 ml-auto"
+            >
+              {isDeleting ? (
+                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-red-600"></div>
+              ) : (
+                <Trash2 className="w-5 h-5" />
+              )}
+              {isDeleting ? "Deleting..." : "Delete Listing"}
+            </button>
             </div>
           </div>
         </div>

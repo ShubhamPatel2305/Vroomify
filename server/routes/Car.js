@@ -37,4 +37,18 @@ router.get("/:id",validateToken,getCarMiddleware, async (req, res) => {
     }
 });
 
+router.delete("/delete/:id",validateToken,async (req,res)=>{
+    try {
+        const uid=req.userId.toString();
+        const carId=req.params.id;
+        const car=await Car.findById(carId);
+        if(!car) return res.status(403).json({message: "Car not found"});
+        if(car.created_by.toString()!==uid) return res.status(405).json({message:"Access denied"});
+        await Car.deleteOne({_id:car._id});
+        return res.status(200).json({message: "Car deleted successfully"});
+    } catch (error) {
+        return res.status(500).json({message: "Error deleting car"});
+    }
+})
+
 module.exports = router;
