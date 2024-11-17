@@ -17,11 +17,11 @@ router.get("/my-cars", validateToken, async (req,res)=>{
 
         // Check if no cars were found
         if (!cars || cars.length === 0) {
-            return res.status(404).json({ message: "No cars found" });
+            return res.status(403).json({ message: "No cars found" });
         }
 
         // Return the cars in the response
-    return res.status(200).json({ cars });
+    return res.status(200).send(cars);
     } catch (error) {
         return res.status(500).json({message: "Error fetching cars"});
     }
