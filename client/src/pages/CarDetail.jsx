@@ -18,7 +18,7 @@ const CarDetail = () => {
     const fetchCarDetails = async () => {
       try {
         const {token}=getUserData();
-        const response = await axios.get(`http://localhost:3001/api/v1/car/${id}`, {
+        const response = await axios.get(`https://vroomify-shubhampatel2305s-projects.vercel.app/api/v1/car/${id}`, {
           headers: {
             authorization: token
           }
