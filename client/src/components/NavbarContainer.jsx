@@ -17,6 +17,7 @@ const NavbarContainer = () => {
 
   const handleLogout = useCallback(() => {
     clearUserData();
+    navigate("/");
     window.location.reload();
   }, [checkAuthStatus, navigate]);
 

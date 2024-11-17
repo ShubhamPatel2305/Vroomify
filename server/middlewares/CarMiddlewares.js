@@ -16,6 +16,19 @@ const CarValidationSchema = z.object({
   created_by: z.string().regex(/^[0-9a-fA-F]{24}$/, 'Invalid ObjectId')
 });
 
+const editCarDetailSchema = z.object({
+  title: z.string().min(1).optional(), // title can be changed (non-empty string)
+  description: z.string().min(1).optional(), // description can be changed (non-empty string)
+  tags: z.array(z.string()).min(1).optional(), // tags can be changed (array of non-empty strings)
+  car_id:z.string().regex(/^[0-9a-fA-F]{24}$/, 'Invalid ObjectId'),
+}).refine((data) => {
+  // Ensure at least one field is provided for modification
+  return data.title || data.description || data.tags?.length > 0;
+}, {
+  message: "At least one field (title, description, or tags) must be changed.",
+  path: ["title", "description", "tags"], // Path where the validation error should be placed
+});
+
 // Helper function to parse multipart form data
 const parseFormData = async (req) => {
   return new Promise((resolve, reject) => {
@@ -216,9 +229,56 @@ const getCarMiddleware= async (req,res,next)=>{
   }
 }
 
+const editCarDetails= async (req,res,next)=>{
+  try {
+    // Validate incoming data based on the Zod schema
+    editCarDetailSchema.parse(req.body);  
+  } catch (error) {
+    return res.status(400).json({ error: error.errors });
+  }
+
+  const carId=req.body.car_id;
+  let car;
+  try {
+    car = await Car.findById(carId);
+    if (!car) {
+      return res.status(402).json({ error: "Car not found" });
+    }
+  } catch (error) {
+    return res.status(500).json({ error: 'Error fetching car details' });
+  }
+
+  const updatedFields = {
+    title:req.body.title,
+    description:req.body.description
+  };
+
+
+  // Handle the tags array
+  if (req.body.tags) {
+    const updatedTags = {};
+    const tagKeys = Object.keys(car.tags); // Get the keys from the existing tags
+
+    // Ensure we update all tags in order based on the received array
+    tagKeys.forEach((key, index) => {
+      updatedTags[key] = req.body.tags[index]; // Map values from array to keys
+    });
+
+    updatedFields.tags = updatedTags;
+  }
+
+  try {
+    const updatedCar = await Car.findByIdAndUpdate(carId, updatedFields, { new: true });
+    return res.status(200).json({ message: 'Car details updated successfully', car: updatedCar });
+  } catch (error) {
+    return res.status(500).json({ error: 'Error updating car details' });
+  }
+}
+
 module.exports={
   addCar,
   validateCarInput,
   validateToken,
-  getCarMiddleware
+  getCarMiddleware,
+  editCarDetails
 }

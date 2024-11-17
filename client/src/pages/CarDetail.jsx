@@ -7,6 +7,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import { Tag, Clock, User, ChevronLeft, ChevronRight, X, Trash2 } from 'lucide-react';
 import { getUserData } from '../utils/TokenUtils';
 import NavbarContainer from "../components/NavbarContainer"
+import EditCarDetailsModal from "../components/EditCarDetailsModal"
 
 const Modal = ({ isOpen, onClose, onConfirm }) => {
   if (!isOpen) return null;
@@ -22,7 +23,7 @@ const Modal = ({ isOpen, onClose, onConfirm }) => {
       >
         <h2 className="text-xl font-bold mb-4">Confirm Deletion</h2>
         <p className="mb-6 text-gray-600">
-          Are you sure you want to delete this car listing? This action cannot be undone.
+          Are you sure you want to delete this car? This action cannot be undone.
         </p>
         <div className="flex justify-end space-x-4">
           <button
@@ -48,6 +49,7 @@ const CarDetail = () => {
   const [loading, setLoading] = useState(true);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isModalOpen, setModalOpen] = useState(false);
+  const [detailsModalOpen,setDetailsModalOpen]=useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isFullScreen, setIsFullScreen] = useState(false);
   const { id } = useParams();
@@ -91,10 +93,29 @@ const CarDetail = () => {
   const openModal = () => {
     setModalOpen(true);
   };
+  
+  const openDetailModal=()=>{
+    setDetailsModalOpen(true);
+  }
 
   const closeModal = () => {
     setModalOpen(false);
   };
+
+  const closeDetailModal=()=>{
+    setDetailsModalOpen(false);
+  }
+
+  const handleCarUpdate = () => {
+    setCar((prevCar) => ({
+      ...prevCar,
+      title: prevCar.title, // Use updated values if necessary
+      description: prevCar.description,
+      tags: prevCar.tags,
+    }));
+    window.location.reload();
+  };
+
 
   const confirmDelete = async () => {
     setModalOpen(false);
@@ -110,7 +131,7 @@ const CarDetail = () => {
         }
       );
 
-      toast.success("Car listing deleted successfully");
+      toast.success("Car deleted successfully");
       setTimeout(() => {
         navigate("/profile");
         window.location.reload();
@@ -121,16 +142,16 @@ const CarDetail = () => {
           toast.error("Unauthorized access. Please login again.");
           break;
         case 403:
-          toast.error("Car listing not found.");
+          toast.error("Car not found.");
           break;
         case 405:
-          toast.error("You do not have permission to delete this car listing.");
+          toast.error("You do not have permission to delete this car.");
           break;
         case 500:
           toast.error("Server error. Please try again later.");
           break;
         default:
-          toast.error("An error occurred while deleting the car listing.");
+          toast.error("An error occurred while deleting the car.");
       }
     } finally {
       setIsDeleting(false);
@@ -172,6 +193,13 @@ const CarDetail = () => {
       <ToastContainer position="top-right" autoClose={5000} />
       {/* Modal */}
       <Modal isOpen={isModalOpen} onClose={closeModal} onConfirm={confirmDelete} />
+      <EditCarDetailsModal
+          isOpen={detailsModalOpen}
+          onClose={closeDetailModal}
+          carId={car._id}
+          carData={car}
+          onUpdate={handleCarUpdate}
+        />
 
       
       {/* Card Container */}
@@ -285,8 +313,8 @@ const CarDetail = () => {
             <div className="flex flex-wrap gap-3 pt-4 justify-between items-center">
               <div className="flex flex-wrap gap-3">
                 <button className="px-4 py-2 bg-violet-600 text-white rounded-lg hover:bg-violet-700 
-                                 transition-colors flex items-center">
-                  Contact Seller
+                                 transition-colors flex items-center" onClick={()=>openDetailModal()}>
+                  Edit Details
                 </button>
                 <button className="px-4 py-2 border border-violet-600 text-violet-600 rounded-lg 
                                  hover:bg-violet-50 transition-colors flex items-center">
@@ -306,7 +334,7 @@ const CarDetail = () => {
               ) : (
                 <Trash2 className="w-5 h-5" />
               )}
-              {isDeleting ? "Deleting..." : "Delete Listing"}
+              {isDeleting ? "Deleting..." : "Delete"}
             </button>
             </div>
           </div>
