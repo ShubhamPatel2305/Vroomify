@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { getUserData } from '../utils/TokenUtils';
+import { clearUserData, getUserData } from '../utils/TokenUtils';
 import NavbarContainer from '../components/NavbarContainer';
 import CarCard from '../components/CarCard';
 
@@ -44,9 +44,10 @@ const Profile = () => {
     }, []);
 
     const handleLogout = () => {
-        localStorage.clear();
-        navigate('/');
+        clearUserData(); // Clears user data from local storage or any other source
+        window.location.href = "/"; // Redirects to the home page and reloads it
     };
+    
 
     return (
         <>
@@ -62,7 +63,7 @@ const Profile = () => {
                         ) : (
                             <>
                             <h1 className="text-2xl font-bold mb-8">Your created cars</h1>
-                            <div className="flex flex-col gap-6">
+                            <div className="flex flex-col gap-6 mb-16">
                                 {cars.map((car) => (
                                     <CarCard key={car._id} car={car} />
                                 ))}
