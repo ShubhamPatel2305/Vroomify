@@ -84,7 +84,7 @@ const validateUserSignin = async (req, res, next) => {
             });
         }
 
-        req.user_id=existingUser.id;
+        req.user_id=existingUser._id;
         req.user=existingUser;  
         next();
     } catch (error) {
