@@ -2,7 +2,6 @@ import {
   BrowserRouter,
   Routes,
   Route,
-  HashRouter as Router
 } from "react-router-dom";
 import Signup from "./pages/Signup";
 import Home from "./pages/Home";
@@ -16,13 +15,11 @@ function App() {
     <>
       <BrowserRouter>
       <Routes>
-        <Router>
-          <Route path="/" element={<Home />} />
-          <Route path="/signup" element={<Signup />} />
-          <Route path="/signin" element={<SignIn />} />
-          <Route path="/create-car" element={<CreateCar />} />
-          <Route path="/profile" element={<Profile />} />
-        </Router>
+        <Route path="/" element={<Home />} />
+        <Route path="/signup" element={<Signup />} />
+        <Route path="/signin" element={<SignIn />} />
+        <Route path="/create-car" element={<CreateCar />} />
+        <Route path="/profile" element={<Profile />} />
       </Routes>
       </BrowserRouter>
     </>
