@@ -148,7 +148,7 @@ const CreateCar = () => {
         formDataToSend.append('images', file);
       });
 
-      const response = await axios.post('http://localhost:3001/api/v1/car/add-car', formDataToSend, {
+      const response = await axios.post('https://vroomify-shubhampatel2305s-projects.vercel.app/api/v1/car/add-car', formDataToSend, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
