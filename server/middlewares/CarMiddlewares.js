@@ -185,6 +185,9 @@ const validateToken= async (req,res,next)=>{
         return res.status(401).send({message:"User not found."});
     }
     req.user=user;
+    req.userId=user._id;
+    req.userName=user.name;
+    req.userEmail=user.email;
     next();
   } catch (error) {
     return res.status(500).send({
@@ -193,8 +196,29 @@ const validateToken= async (req,res,next)=>{
   }
 }
 
+const getCarMiddleware= async (req,res,next)=>{
+  try {
+    const carId = req.params.id;
+    const car = await Car.findById(carId);
+    if(!car){
+      return res.status(405).json({message: 'Car not found'});
+    }
+    if(car.created_by.toString() === req.userId.toString()){
+      car.created_by=req.userName;
+      req.car=car;
+      next();
+    }
+    else{
+      return res.status(403).json({message: 'You are not the owner of this car'});
+    }
+  } catch (error) {
+    return res.status(500).json({message: 'Error getting car', details: error.message});
+  }
+}
+
 module.exports={
   addCar,
   validateCarInput,
-  validateToken
+  validateToken,
+  getCarMiddleware
 }

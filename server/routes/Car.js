@@ -1,5 +1,5 @@
 const express = require("express");
-const { validateCarInput, addCar, validateToken } = require("../middlewares/CarMiddlewares");
+const { validateCarInput, addCar, validateToken, getCarMiddleware } = require("../middlewares/CarMiddlewares");
 const router = express.Router();
 require('dotenv').config();
 const jwt= require('jsonwebtoken');
@@ -25,6 +25,16 @@ router.get("/my-cars", validateToken, async (req,res)=>{
     } catch (error) {
         return res.status(500).json({message: "Error fetching cars"});
     }
-})
+});
+
+//get car by id in req params 
+router.get("/:id",validateToken,getCarMiddleware, async (req, res) => {
+    try {
+        req.car.name=req.userName;
+        return res.status(200).json(req.car);
+    } catch (error) {
+        return res.status(500).json({message: "Error fetching car"});
+    }
+});
 
 module.exports = router;

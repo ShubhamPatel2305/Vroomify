@@ -8,6 +8,7 @@ import Home from "./pages/Home";
 import SignIn from "./pages/Signin";
 import CreateCar from "./pages/CreateCar";
 import Profile from "./pages/Profile";
+import CarDetail from "./pages/CarDetail";
 
 function App() {
 
@@ -20,6 +21,7 @@ function App() {
         <Route path="/signin" element={<SignIn />} />
         <Route path="/create-car" element={<CreateCar />} />
         <Route path="/profile" element={<Profile />} />
+        <Route path="/car/:id" element={<CarDetail />} />
       </Routes>
       </BrowserRouter>
     </>

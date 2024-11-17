@@ -55,7 +55,7 @@ const Navbar = ({ isLoggedIn, username, onLogout }) => {
   };
 
   const handleSignupClick = () => {
-    navigate("/signup");
+    navigate("/signin");
   };
 
   return (
