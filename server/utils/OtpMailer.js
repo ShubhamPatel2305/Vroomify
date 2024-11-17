@@ -1,35 +1,18 @@
-const formData = require('form-data');
-const Mailgun = require('mailgun.js');
-require('dotenv').config();
+const sgMail = require('@sendgrid/mail');
+const dotenv = require('dotenv');
 
-// Initialize Mailgun client
-const mailgun = new Mailgun(formData);
-const mg = mailgun.client({ username: 'api', key: process.env.MAILGUN_API_KEY });
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
-/**
- * Send OTP email using Mailgun
- * @param {string} recipientEmail - The email address of the recipient
- * @param {string} otp - The one-time password to send
- * @param {string} message - Custom message to include with the OTP
- * @returns {Promise<void>}
- */
 const sendOtpEmail = async (recipientEmail, otp, message) => {
-    try {
-        const data = {
-            from: 'Excited User <mailgun@sandbox58049ebfe17044809fd80e9f065cfcdd.mailgun.org>', 
-            to: recipientEmail,
-            subject: 'Your OTP Code',
-            text: `${message}: ${otp}`,
-            html: `<p>${message}: <strong>${otp}</strong></p>`,
-        };
-
-        // Send the email
-        const response = await mg.messages.create('sandbox-123.mailgun.org', data); 
-        console.log('Email sent successfully:', response);
-    } catch (error) {
-        console.error('Error sending OTP email:', error);
-        throw new Error('Failed to send OTP email.');
-    }
+    const msg = {
+        to: recipientEmail,
+        from: 'noreply.teamsync@gmail.com', // Use the email address or domain you verified above
+        subject: 'Vroomify OTP Verification',
+        text: `${message}  ${otp}`,
+        html: `<strong>${message}  ${otp}</strong>`,
+      };
+    
+      sgMail.send(msg).then(res=>console.log("Email sent")).catch(err=>console.log(err.message));
 };
 
 // Export the sendOtpEmail function for use in other parts of the application
