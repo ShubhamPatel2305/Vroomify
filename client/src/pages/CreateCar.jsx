@@ -1,21 +1,22 @@
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../hooks/index';
 import { useEffect } from 'react';
 import Navbar from '../components/Navbar';
+import { getUserData } from '../utils/TokenUtils';
 
 const CreateCar = () => {
   const navigate = useNavigate();
-  const { isLoggedIn, isAuthLoading } = useAuth();
+  let isLoggedIn=false;
+  const {token}=getUserData();
+  if(token && token!=''){
+    isLoggedIn=true;
+  }
 
   useEffect(() => {
-    if (!isAuthLoading && !isLoggedIn) {
+    if (!isLoggedIn) {
       navigate('/');
     }
-  }, [isLoggedIn, isAuthLoading, navigate]);
+  }, [isLoggedIn, navigate]);
 
-  if (isAuthLoading) {
-    return <div>Loading...</div>; // Show a loading state while verifying auth
-  }
 
   return <div>
     <Navbar />
