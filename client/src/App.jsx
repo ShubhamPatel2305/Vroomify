@@ -9,6 +9,7 @@ import SignIn from "./pages/Signin";
 import CreateCar from "./pages/CreateCar";
 import Profile from "./pages/Profile";
 import CarDetail from "./pages/CarDetail";
+import ApiDocs from "./pages/ApiDocs";
 
 function App() {
 
@@ -22,6 +23,7 @@ function App() {
         <Route path="/create-car" element={<CreateCar />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/car/:id" element={<CarDetail />} />
+        <Route path="/api/docs" element={<ApiDocs />} />
       </Routes>
       </BrowserRouter>
     </>

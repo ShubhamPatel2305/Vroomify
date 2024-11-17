@@ -166,6 +166,8 @@ const addCar = async (req, res) => {
       creator_email:formFields.creator_email
     });
 
+    console.log()
+
     await newCar.save();
 
     res.status(201).json({
