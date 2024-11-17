@@ -2,17 +2,21 @@ import { useEffect, useCallback, useState } from 'react';
 import Navbar from './Navbar';
 import { useAuth } from '../hooks';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { clearUserData } from '../utils/TokenUtils';
+import { clearUserData, getUserData } from '../utils/TokenUtils';
 
 const NavbarContainer = () => {
-  const { isLoggedIn, username, checkAuthStatus } = useAuth();
+  const { checkAuthStatus } = useAuth();  
+  let isLoggedIn=false;
+  const {token, username}=getUserData();
+  if(token && token!=''){
+    isLoggedIn=true;
+  }
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
   const location = useLocation();
 
   const handleLogout = useCallback(() => {
     clearUserData();
-    checkAuthStatus();
     window.location.reload();
   }, [checkAuthStatus, navigate]);
 

@@ -4,7 +4,6 @@ import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../hooks/index';
 
 import { z } from 'zod';
 import { getUserData, setUserData } from '../utils/TokenUtils';
@@ -134,7 +133,11 @@ const Signup = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [otpview, setOtpview] = useState(false);
   const navigate = useNavigate();
-  const { isLoggedIn } = useAuth(); // Use the isLoggedIn state from useAuth
+  let isLoggedIn=false;
+  const {token}=getUserData();
+  if(token && token!=''){
+    isLoggedIn=true;
+  }
 
   useEffect(() => {
     if (isLoggedIn) {

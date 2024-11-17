@@ -1,10 +1,15 @@
-import { useAuth } from "../hooks/index";
+
 import NavbarContainer from "../components/NavbarContainer";
 import Hero from "../components/Hero";
 import { Link } from "react-router-dom";
+import { getUserData } from "../utils/TokenUtils";
 
 const Home = () => {
-  const { isLoggedIn, username } = useAuth();
+  let isLoggedIn=false;
+  const {token,username}=getUserData();
+  if(token && token!=''){
+    isLoggedIn=true;
+  }
 
   return (
     <div>
