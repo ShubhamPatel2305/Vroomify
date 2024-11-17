@@ -4,6 +4,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/index';
+import { setUserData,getUserData } from '../utils/TokenUtils';
 
 import { z } from 'zod';
 
@@ -47,9 +48,10 @@ const SignIn = () => {
 
       if (response.status === 200) {
         // Store data in localStorage
-        localStorage.setItem('email', email);
-        localStorage.setItem('username', response.data.name);
-        localStorage.setItem('token', response.data.token);
+        // localStorage.setItem('email', email);
+        // localStorage.setItem('username', response.data.name);
+        // localStorage.setItem('token', response.data.token);
+        setUserData(email, response.data.name, response.data.token);
 
         toast.success('Sign-in successful!');
         navigate('/');
@@ -59,7 +61,7 @@ const SignIn = () => {
         toast.error('Invalid credentials. Please try again.');
       } else if (error.response?.status === 402) {
         toast.warn('Account not verified. Redirecting to OTP verification...');
-        localStorage.setItem('email', email);
+        setUserData(email, '', '');
         setOtpView(true); // Show OTP verification
       } else {
         toast.error('An error occurred. Please try again.');
@@ -150,8 +152,9 @@ const OTPVerification = () => {
         const sendOtp = async () => {
           setIsSendingAttempted(true); // Set the flag to true
           try {
+            const { email } = getUserData();
             const response = await axios.post('https://vroomify-shubhampatel2305s-projects.vercel.app/api/v1/user/verify', {
-              email: localStorage.getItem('email'),
+              email
             });
   
             if (response.status === 200) {
@@ -178,15 +181,15 @@ const OTPVerification = () => {
   const verifyOTP = async () => {
     setIsLoading(true);
     try {
+      const { email } = getUserData();
       const response = await axios.put('https://vroomify-shubhampatel2305s-projects.vercel.app/api/v1/user/verify', {
-        email: localStorage.getItem('email'),
+        email,
         registerOtp: otp,
       });
   
       if (response.status === 200) {
         toast.success('OTP verified successfully');
-        localStorage.setItem('token', response.data.token);
-        localStorage.setItem('username',response.data.name);
+        setUserData(email, response.data.name, response.data.token);
         navigate("/");
       }
     } catch (error) {
