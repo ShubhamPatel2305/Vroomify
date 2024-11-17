@@ -1,5 +1,6 @@
 import axios from "axios";
 import { useCallback, useEffect, useState } from "react";
+import { getUserData } from "../utils/TokenUtils";
 
 const useAuth = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -7,8 +8,8 @@ const useAuth = () => {
   const [username, setUsername] = useState('');
 
   const checkAuthStatus = useCallback(async () => {
-    const token = localStorage.getItem('token');
-    const storedUsername = localStorage.getItem('username');
+    const {token,username}=getUserData();
+    const storedUsername = username
 
     if (token && storedUsername) {
       try {

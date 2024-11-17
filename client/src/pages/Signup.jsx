@@ -7,6 +7,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/index';
 
 import { z } from 'zod';
+import { getUserData, setUserData } from '../utils/TokenUtils';
 
 const OTPVerification = () => {
   const [otp, setOtp] = useState('');
@@ -20,8 +21,9 @@ const OTPVerification = () => {
       const sendOtp = async () => {
         setIsSendingAttempted(true); // Set the flag to true
         try {
+          const {email}=getUserData();
           const response = await axios.post('https://vroomify-shubhampatel2305s-projects.vercel.app/api/v1/user/verify', {
-            email: localStorage.getItem('email'),
+            email,
           });
 
           if (response.status === 200) {
@@ -48,15 +50,15 @@ const OTPVerification = () => {
 const verifyOTP = async () => {
   setIsLoading(true);
   try {
+    const {email}=getUserData();
     const response = await axios.put('https://vroomify-shubhampatel2305s-projects.vercel.app/api/v1/user/verify', {
-      email: localStorage.getItem('email'),
+      email,
       registerOtp: otp,
     });
 
     if (response.status === 200) {
       toast.success('OTP verified successfully');
-      localStorage.setItem('token', response.data.token);
-      localStorage.setItem('username',response.data.name);
+      setUserData(email,response.data.name,response.data.token);  
       navigate("/");
     }
   } catch (error) {
@@ -160,7 +162,7 @@ const Signup = () => {
 
       if (response.status === 201) {
         toast.success('Signup successful! Check your email for the OTP.');
-        localStorage.setItem('email', email);
+        setUserData(email,'','')
         setIsLoading(false);
         navigateToOTPForm();
       }

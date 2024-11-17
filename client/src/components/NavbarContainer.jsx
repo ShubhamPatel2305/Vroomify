@@ -2,6 +2,7 @@ import { useEffect, useCallback, useState } from 'react';
 import Navbar from './Navbar';
 import { useAuth } from '../hooks';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { clearUserData } from '../utils/TokenUtils';
 
 const NavbarContainer = () => {
   const { isLoggedIn, username, checkAuthStatus } = useAuth();
@@ -10,9 +11,7 @@ const NavbarContainer = () => {
   const location = useLocation();
 
   const handleLogout = useCallback(() => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('username');
-    localStorage.removeItem('email');
+    clearUserData();
     checkAuthStatus();
     window.location.reload();
   }, [checkAuthStatus, navigate]);
