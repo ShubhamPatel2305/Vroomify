@@ -5,7 +5,8 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { X } from 'lucide-react';
 import NavbarContainer from '../components/NavbarContainer';
-import { getUserId } from '../utils/TokenUtils';
+import { getUserData, getUserId } from '../utils/TokenUtils';
+import { useNavigate } from 'react-router-dom';
 
 const CreateCar = () => {
   const [formData, setFormData] = useState({
@@ -21,6 +22,7 @@ const CreateCar = () => {
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
+  const navigate=useNavigate();
 
   const validateField = (name, value) => {
     const newErrors = { ...errors };
@@ -150,7 +152,10 @@ const CreateCar = () => {
         formDataToSend.append('images', file);
       });
 
-      const response = await axios.post('https://vroomify-shubhampatel2305s-projects.vercel.app/api/v1/car/add-car', formDataToSend, {
+      const {email,username}=getUserData();
+      formDataToSend.append('creator_name', username);
+      formDataToSend.append('creator_email', email);
+      const response = await axios.post('http://localhost:3001/api/v1/car/add-car', formDataToSend, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -169,6 +174,8 @@ const CreateCar = () => {
       });
       setSelectedFiles([]);
       setErrors({});
+      navigate("/profile");
+      window.location.reload();
 
     } catch (error) {
       toast.error(error.response?.data?.error || 'Failed to add car details');

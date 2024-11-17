@@ -304,7 +304,7 @@ const CarDetail = () => {
                 </div>
                 <div className="flex items-center">
                   <User className="w-4 h-4 mr-2 text-violet-500" />
-                  <span>Creator ID: {car.creator_name}</span>
+                  <span>Creator : {car.creator_name}</span>
                 </div>
               </div>
             </div>

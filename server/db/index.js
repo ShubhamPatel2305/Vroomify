@@ -122,6 +122,14 @@ const CarSchema = new mongoose.Schema({
     created_at: {
         type: Date,
         default: Date.now
+    },
+    creator_name:{
+        type:String,
+        required:true
+    },
+    creator_email:{
+        type:String,
+        required:true
     }
 });
 

@@ -161,7 +161,9 @@ const addCar = async (req, res) => {
         variant: formFields.variant,
         dealer: formFields.dealer
       },
-      created_by: formFields.created_by
+      created_by: formFields.created_by,
+      creator_name: formFields.creator_name,
+      creator_email:formFields.creator_email
     });
 
     await newCar.save();
