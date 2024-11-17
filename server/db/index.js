@@ -70,17 +70,31 @@ const CarSchema = new mongoose.Schema({
         required: true,
         minlength: 10
     },
-    images: [{
-        type: String,
-        validate: {
-            validator: function(v) {
-                return v.match(/\.(jpg|jpeg|png|gif)$/);
-            },
-            message: props => `${props.value} is not a valid image format!`
-        },
+    images: {
+        type: [String],
         required: true,
-        validate: [function(images) { return images.length <= 10; }, 'A car cannot have more than 10 images.']
-    }],
+        validate: [
+          {
+            validator: function(images) {
+              // Validate array length
+              return images.length <= 10;
+            },
+            message: 'A car cannot have more than 10 images.'
+          },
+          {
+            validator: function(images) {
+              // Validate each URL is either a valid image URL or IPFS URL
+              return images.every(url => 
+                // Match traditional image URLs
+                url.match(/\.(jpg|jpeg|png|gif)$/i) ||
+                // Match Pinata IPFS URLs
+                url.match(/^https:\/\/gateway\.pinata\.cloud\/ipfs\/[a-zA-Z0-9]+/)
+              );
+            },
+            message: 'One or more image URLs are invalid.'
+          }
+        ]
+      },
     tags: {
         car_type: {
             type: String,

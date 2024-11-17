@@ -2,6 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const app = express();
 const userRouter=require("./routes/User");
+const carRouter=require("./routes/Car");
 const cors = require("cors");
 const { connectDB } = require('./db');
 
@@ -10,6 +11,7 @@ const { connectDB } = require('./db');
 app.use(bodyParser.json());
 app.use(cors());
 app.use("/api/v1/user", userRouter);
+app.use("/api/v1/car", carRouter);
 
 const PORT = 3001;
 
