@@ -73,16 +73,18 @@ const EditCarDetailsModal = ({ isOpen, onClose, carId, carData, onUpdate }) => {
       });
 
     try {
-      const parsedData={
+      schema.parse({ title, description, tags });
+
+      const parsedData = {
         title: title.trim(),
         description: description.trim(),
         tags: Object.values(tags).map((value) => value.trim()),
-        car_id:carData._id.toString()
-      }
+        car_id: carData._id.toString(),
+      };
 
       const response = await axios.put(
         `https://vroomify-shubhampatel2305s-projects.vercel.app/api/v1/car/edit-details`,
-        parsedData, 
+        parsedData,
         { headers: { authorization: token } }
       );
 
@@ -90,12 +92,14 @@ const EditCarDetailsModal = ({ isOpen, onClose, carId, carData, onUpdate }) => {
       onUpdate();
       onClose();
     } catch (error) {
-      if (error.response?.status === 400) {
+      if (error.message === 'No changes detected.') {
+        toast.error('No changes detected. Please modify at least one field.');
+      } else if (error.response?.status === 400) {
         toast.error('Invalid input data.');
       } else if (error.response?.status === 401) {
         toast.error('Unauthorized access.');
       } else {
-        toast.error('Something went wrong. Please try again later.');
+        toast.error('Please change atleast one field');
       }
     } finally {
       setLoading(false);
@@ -160,7 +164,6 @@ const EditCarDetailsModal = ({ isOpen, onClose, carId, carData, onUpdate }) => {
                   <option value="top">Top</option>
                 </select>
               </div>
-
               <div className="mb-2">
                 <input
                   type="text"

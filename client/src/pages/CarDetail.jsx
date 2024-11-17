@@ -284,7 +284,7 @@ const CarDetail = () => {
                            bg-violet-100 text-violet-800 hover:bg-violet-200 transition-colors"
                 >
                   <Tag className="w-4 h-4 mr-1.5" />
-                  {`${key.replace('_', ' ')}: ${value}`}
+                  {key==="variant"?`Variant: ${value}`:`${value}`}
                 </span>
               ))}
             </div>
