@@ -155,7 +155,7 @@ const CreateCar = () => {
       const {email,username}=getUserData();
       formDataToSend.append('creator_name', username);
       formDataToSend.append('creator_email', email);
-      const response = await axios.post('http://localhost:3001/api/v1/car/add-car', formDataToSend, {
+      const response = await axios.post('https://vroomify-shubhampatel2305s-projects.vercel.app/api/v1/car/add-car', formDataToSend, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -174,7 +174,7 @@ const CreateCar = () => {
       });
       setSelectedFiles([]);
       setErrors({});
-      navigate("/profile");
+      navigate("/profile"); 
       window.location.reload();
 
     } catch (error) {
