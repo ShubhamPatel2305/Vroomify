@@ -32,7 +32,8 @@ router.post("/signup", validateUserSignup, async (req, res) => {
         // Send a success response
         return res.status(201).json({
             message: "User registered successfully.",
-            email: newUser.email
+            email: newUser.email,
+            user_id:newUser._id
         });
     } catch (error) {
         console.error("Error creating user:", error);
@@ -54,7 +55,8 @@ router.post("/signin", validateUserSignin,(req,res)=>{
         token,
         name:req.user.name,
         email:req.user.email,
-        joined_at:req.user.created_at
+        joined_at:req.user.created_at,
+        user_id:req.user._id
     });
 })
 
@@ -222,7 +224,8 @@ router.put("/verify",validateUserVerify, async (req,res)=>{
             message: "User verified successfully.",
             token,
             name:userOne.name,
-            joined_at:userOne.created
+            joined_at:userOne.created,
+            user_id:userOne._id
         });
     }else{
         return res.status(402).json({
@@ -241,7 +244,7 @@ router.get("/profile", tokenValidation, async (req,res)=>{
             });
         }
         return res.status(200).json({
-            id:RequestedUser.id,
+            user_id:RequestedUser.id,
             name:RequestedUser.name,
             email:RequestedUser.email,
             // state:RequestedUser.state,

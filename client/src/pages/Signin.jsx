@@ -3,7 +3,7 @@ import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { Link, useNavigate } from 'react-router-dom';
-import { setUserData,getUserData } from '../utils/TokenUtils';
+import { setUserData,getUserData, setUserId } from '../utils/TokenUtils';
 
 import { z } from 'zod';
 
@@ -55,6 +55,7 @@ const SignIn = () => {
         // localStorage.setItem('username', response.data.name);
         // localStorage.setItem('token', response.data.token);
         setUserData(email, response.data.name, response.data.token);
+        setUserId(response.data.user_id);
 
         toast.success('Sign-in successful!');
         navigate('/');
@@ -193,6 +194,7 @@ const OTPVerification = () => {
       if (response.status === 200) {
         toast.success('OTP verified successfully');
         setUserData(email, response.data.name, response.data.token);
+        setUserId(response.data.user_id);
         navigate("/");
       }
     } catch (error) {

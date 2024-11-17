@@ -42,7 +42,14 @@ class TokenStorage {
     TokenStorage.setStorageKey('username', username);
     TokenStorage.setStorageKey('token', token);
   };
+
+  export const setUserId=(id)=>{
+    TokenStorage.setStorageKey('userId',id);
+  }
   
+  export const getUserId=(id)=>{
+    return TokenStorage.getStorageKey('userId');
+  }
   export const getUserData = () => {
     return {
       email: TokenStorage.getStorageKey('email'),
@@ -55,4 +62,5 @@ class TokenStorage {
     TokenStorage.removeStorageKey('email');
     TokenStorage.removeStorageKey('username');
     TokenStorage.removeStorageKey('token');
+    TokenStorage.removeStorageKey('userId');
   };

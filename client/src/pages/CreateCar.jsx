@@ -5,6 +5,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { X } from 'lucide-react';
 import NavbarContainer from '../components/NavbarContainer';
+import { getUserId } from '../utils/TokenUtils';
 
 const CreateCar = () => {
   const [formData, setFormData] = useState({
@@ -16,6 +17,7 @@ const CreateCar = () => {
     dealer: ''
   });
 
+  const userId=getUserId();
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
@@ -141,7 +143,7 @@ const CreateCar = () => {
       });
 
       // Append created_by (assuming you have the user's ID from context/auth)
-      formDataToSend.append('created_by', '67397c737fb3d61e7da12be4'); // Replace with actual user ID
+      formDataToSend.append('created_by', userId); // Replace with actual user ID
 
       // Append files
       selectedFiles.forEach(file => {

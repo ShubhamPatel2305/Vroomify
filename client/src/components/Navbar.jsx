@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { LogOut } from 'lucide-react';
 
 
@@ -34,6 +34,7 @@ const Modal = ({ isOpen, onClose, onConfirm }) => {
 const Navbar = ({ isLoggedIn, username, onLogout }) => {
   const navigate = useNavigate();
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
+  const location= useLocation();
 
   const getInitials = (name) => {
     return name
@@ -65,12 +66,15 @@ const Navbar = ({ isLoggedIn, username, onLogout }) => {
           <div className="flex items-center space-x-4">
             {isLoggedIn ? (
               <>
-                <button 
-                  className='w-auto px-5 py-2 h-auto bg-white text-gray-800 font-semibold rounded-md'
-                  onClick={()=>navigate("/create-car")}
-                >
-                  Create New Car
-                </button>
+                {/* Conditionally hide "Create New Car" button */}
+                {location.pathname !== '/create-car' && (
+                  <button
+                    className="w-auto px-5 py-2 h-auto bg-white text-gray-800 font-semibold rounded-md"
+                    onClick={() => navigate('/create-car')}
+                  >
+                    Create New Car
+                  </button>
+                )}
                 <div 
                   className="relative inline-flex items-center justify-center w-10 h-10 overflow-hidden bg-gray-100 rounded-full dark:bg-gray-600 cursor-pointer" 
                   onClick={() => navigate("/profile")}

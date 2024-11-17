@@ -1,64 +1,172 @@
+const {Car}= require('../db/index');
+const FormData = require('form-data');
 const { z } = require('zod');
-const multer = require('multer');
+const axios = require('axios');
+const busboy = require('busboy');
 
-// Set up multer storage for images (you can adjust settings as needed)
-const storage = multer.memoryStorage(); // Store files in memory
-const upload = multer({ 
-  storage: storage, 
-  limits: { fileSize: 1 * 1024 * 1024 }, // Maximum file size of 1MB
-  fileFilter: (req, file, cb) => {
-    // Only allow image file types (jpg, jpeg, png, gif)
-    if (file.mimetype.match(/\/(jpg|jpeg|png|gif)$/)) {
-      cb(null, true);
-    } else {
-      cb(new Error('Invalid image format'), false);
-    }
-  }
+// Zod schema for validation
+const CarValidationSchema = z.object({
+  title: z.string().min(1),
+  description: z.string().min(10),
+  car_type: z.string(),
+  company: z.string(),
+  variant: z.enum(['low', 'mid', 'top']),
+  dealer: z.string(),
+  created_by: z.string().regex(/^[0-9a-fA-F]{24}$/, 'Invalid ObjectId')
 });
 
-// Define Zod schema for validating the request body (form data)
-const carSchema = z.object({
-  title: z.string().min(1, 'Title is required and must be at least 1 character long'),
-  description: z.string().min(10, 'Description must be at least 10 characters long'),
-  // Validate images as an array of file objects (multer stores them in req.files)
-  images: z.array(
-    z.object({
-      originalname: z.string().regex(/\.(jpg|jpeg|png|gif)$/i, 'Invalid image format'), // Image format check
-      buffer: z.instanceof(Buffer).refine(buf => buf.length > 0, 'Image is required'),
-    })
-  ).min(1, 'At least one image is required'),
-  tags: z.object({
-    car_type: z.string().min(1, 'Car type is required'),
-    company: z.string().min(1, 'Company is required'),
-    variant: z.enum(['low', 'mid', 'top'], 'Variant is required and must be one of "low", "mid", "top"'),
-    dealer: z.string().min(1, 'Dealer is required'),
-  }),
-  created_by: z.string().min(1, 'User ID (created_by) is required'), // Ensure it is a string (ID)
-});
-
-// Middleware to validate the request body against the Zod schema
-const validateCarInput = (req, res, next) => {
-  try {
-    // Parse and validate the body using the Zod schema
-    // req.body contains the text fields
-    // req.files contains the uploaded files (images)
-    const validatedData = carSchema.parse({
-      ...req.body,
-      images: req.files, // Attach the images to the schema for validation
+// Helper function to parse multipart form data
+const parseFormData = async (req) => {
+  return new Promise((resolve, reject) => {
+    const fields = {};
+    const files = [];
+    
+    const bb = busboy({ 
+      headers: req.headers,
+      limits: {
+        files: 10,
+        fileSize: 5 * 1024 * 1024 // 5MB limit per file
+      }
     });
 
-    // If no errors, proceed to the next middleware or route handler
-    next();
-  } catch (error) {
-    // If validation fails, respond with a 400 error and the validation message
-    if (error instanceof z.ZodError) {
-      return res.status(400).json({ error: error.errors });
-    }
+    bb.on('field', (name, value) => {
+      fields[name] = value;
+    });
 
-    // Handle unexpected errors
-    res.status(500).json({ error: 'Internal server error' });
+    bb.on('file', async (name, file, info) => {
+      if (!info.mimeType.startsWith('image/')) {
+        return;
+      }
+
+      const chunks = [];
+      file.on('data', (chunk) => chunks.push(chunk));
+      
+      file.on('end', () => {
+        files.push({
+          fieldname: name,
+          buffer: Buffer.concat(chunks),
+          mimetype: info.mimeType,
+          originalname: info.filename
+        });
+      });
+    });
+
+    bb.on('finish', () => {
+      resolve({ fields, files });
+    });
+
+    bb.on('error', reject);
+    req.pipe(bb);
+  });
+};
+
+// Middleware for input validation
+const validateCarInput = async (req, res, next) => {
+  try {
+    // Parse multipart form data
+    const { fields, files } = await parseFormData(req);
+
+    try {
+      // Validate fields using Zod
+      await CarValidationSchema.parseAsync(fields);
+
+      // Attach parsed data to request
+      req.formFields = fields;
+      req.formFiles = files;
+      next();
+    } catch (validationError) {
+      res.status(400).json({ 
+        error: 'Validation failed', 
+        details: validationError.errors || validationError.message 
+      });
+    }
+  } catch (error) {
+    console.error('Form processing error:', error);
+    res.status(500).json({ 
+      error: 'Form processing failed', 
+      details: error.message 
+    });
   }
 };
 
-// Export multer upload and validation middleware together
-module.exports = { validateCarInput, upload };
+// Helper function to upload file to Pinata
+const uploadToPinata = async (file) => {
+  try {
+    const formData = new FormData();
+    
+    // Append the file buffer directly
+    formData.append('file', file.buffer, {
+      filename: file.originalname,
+      contentType: file.mimetype
+    });
+
+    const response = await axios.post(
+      'https://api.pinata.cloud/pinning/pinFileToIPFS',
+      formData,
+      {
+        headers: {
+          ...formData.getHeaders(),
+          'pinata_api_key': process.env.PINATA_API_KEY,
+          'pinata_secret_api_key': process.env.PINATA_API_SECRET
+        },
+        maxContentLength: Infinity,
+        maxBodyLength: Infinity
+      }
+    );
+
+    return `https://gateway.pinata.cloud/ipfs/${response.data.IpfsHash}`;
+  } catch (error) {
+    console.error('Pinata upload error:', error);
+    throw new Error(`Failed to upload to Pinata: ${error.message}`);
+  }
+};
+
+// Main route handler
+const addCar = async (req, res) => {
+  try {
+    const { formFields, formFiles } = req;
+
+    // Check if any images were uploaded
+    if (!formFiles || formFiles.length === 0) {
+      return res.status(400).json({ error: 'At least one image is required' });
+    }
+
+    // Upload all images to Pinata
+    const imageUrls = await Promise.all(
+      formFiles.map(file => uploadToPinata(file))
+    );
+
+    // Create new car document
+    const newCar = new Car({
+      title: formFields.title,
+      description: formFields.description,
+      images: imageUrls,
+      tags: {
+        car_type: formFields.car_type,
+        company: formFields.company,
+        variant: formFields.variant,
+        dealer: formFields.dealer
+      },
+      created_by: formFields.created_by
+    });
+
+    await newCar.save();
+
+    res.status(201).json({
+      message: 'Car added successfully',
+      car: newCar
+    });
+
+  } catch (error) {
+    console.error('Error adding car:', error);
+    res.status(500).json({ 
+      error: 'Failed to add car', 
+      details: error.message 
+    });
+  }
+};
+
+module.exports={
+  addCar,
+  validateCarInput
+}
