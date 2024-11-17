@@ -1,8 +1,9 @@
-const {Car}= require('../db/index');
+const {Car, User}= require('../db/index');
 const FormData = require('form-data');
 const { z } = require('zod');
 const axios = require('axios');
 const busboy = require('busboy');
+const jwt=require('jsonwebtoken');
 
 // Zod schema for validation
 const CarValidationSchema = z.object({
@@ -166,7 +167,34 @@ const addCar = async (req, res) => {
   }
 };
 
+const validateToken= async (req,res,next)=>{
+  try {
+    //get token from authorization in header if not erro then verify it then decode it and extract user_id from it
+    const token = req.header('authorization');
+    if(!token){
+        return res.status(401).send({message:"Token not found."});
+    }
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const userId = decoded.user_id;
+    if(!userId){
+        return res.status(401).send({message:"Invalid token."});
+    }
+    //checl if user exists
+    const user = await User.findById(userId);
+    if(!user){
+        return res.status(404).send({message:"User not found."});
+    }
+    req.user=user;
+    next();
+  } catch (error) {
+    return res.status(500).send({
+      message: 'Error validating token'
+    })
+  }
+}
+
 module.exports={
   addCar,
-  validateCarInput
+  validateCarInput,
+  validateToken
 }
