@@ -8,6 +8,7 @@ import { Tag, Clock, User, ChevronLeft, ChevronRight, X, Trash2 } from 'lucide-r
 import { getUserData } from '../utils/TokenUtils';
 import NavbarContainer from "../components/NavbarContainer"
 import EditCarDetailsModal from "../components/EditCarDetailsModal"
+import EditCarImagesModal from '../components/EditCarImagesModal';
 
 const Modal = ({ isOpen, onClose, onConfirm }) => {
   if (!isOpen) return null;
@@ -50,6 +51,7 @@ const CarDetail = () => {
   const [isDeleting, setIsDeleting] = useState(false);
   const [isModalOpen, setModalOpen] = useState(false);
   const [detailsModalOpen,setDetailsModalOpen]=useState(false);
+  const [imagesModalOpen,setImagesModalOpen]=useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isFullScreen, setIsFullScreen] = useState(false);
   const { id } = useParams();
@@ -98,12 +100,20 @@ const CarDetail = () => {
     setDetailsModalOpen(true);
   }
 
+  const openImagesModal=()=>{
+    setImagesModalOpen(true);
+  }
+
   const closeModal = () => {
     setModalOpen(false);
   };
 
   const closeDetailModal=()=>{
     setDetailsModalOpen(false);
+  }
+
+  const closeImagesModal=()=>{
+    setImagesModalOpen(false);
   }
 
   const handleCarUpdate = () => {
@@ -200,6 +210,13 @@ const CarDetail = () => {
           carData={car}
           onUpdate={handleCarUpdate}
         />
+        
+      <EditCarImagesModal 
+      isOpen={imagesModalOpen}
+      onClose={closeImagesModal}
+      carId={car._id}
+      carData={car}
+      />
 
       
       {/* Card Container */}
@@ -317,8 +334,8 @@ const CarDetail = () => {
                   Edit Details
                 </button>
                 <button className="px-4 py-2 border border-violet-600 text-violet-600 rounded-lg 
-                                 hover:bg-violet-50 transition-colors flex items-center">
-                  Save for Later
+                                 hover:bg-violet-50 transition-colors flex items-center" onClick={()=>openImagesModal()}>
+                  Edit Images
                 </button>
               </div>
               

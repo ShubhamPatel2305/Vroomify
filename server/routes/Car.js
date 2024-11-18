@@ -1,5 +1,5 @@
 const express = require("express");
-const { validateCarInput, addCar, validateToken, getCarMiddleware, editCarDetails } = require("../middlewares/CarMiddlewares");
+const { validateCarInput, addCar, validateToken, getCarMiddleware, editCarDetails, updateCarImages } = require("../middlewares/CarMiddlewares");
 const router = express.Router();
 require('dotenv').config();
 const jwt= require('jsonwebtoken');
@@ -53,5 +53,7 @@ router.delete("/delete/:id",validateToken,async (req,res)=>{
 
 //route to edit car details except images
 router.put("/edit-details",validateToken,editCarDetails);
+
+router.put("/edit-images",validateToken, updateCarImages );
 
 module.exports = router;

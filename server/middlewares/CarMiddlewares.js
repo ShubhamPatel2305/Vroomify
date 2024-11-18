@@ -279,10 +279,47 @@ const editCarDetails= async (req,res,next)=>{
   }
 }
 
+// Backend route handler for updating images
+const updateCarImages = async (req, res) => {
+  try {
+    const { fields, files } = await parseFormData(req);
+    const { car_id, existing_images } = fields;
+    
+    // Parse existing images from JSON string
+    const existingImageUrls = JSON.parse(existing_images);
+    
+    // Upload new images to Pinata if any
+    const newImageUrls = files.length > 0 
+      ? await Promise.all(files.map(file => uploadToPinata(file)))
+      : [];
+    
+    // Combine existing and new image URLs
+    const updatedImageUrls = [...existingImageUrls, ...newImageUrls];
+    
+    // Update car document
+    await Car.findByIdAndUpdate(car_id, {
+      images: updatedImageUrls
+    });
+    
+    res.status(200).json({
+      message: 'Car images updated successfully',
+      images: updatedImageUrls
+    });
+    
+  } catch (error) {
+    console.error('Error updating car images:', error);
+    res.status(500).json({
+      error: 'Failed to update car images',
+      details: error.message
+    });
+  }
+};
+
 module.exports={
   addCar,
   validateCarInput,
   validateToken,
   getCarMiddleware,
-  editCarDetails
+  editCarDetails,
+  updateCarImages
 }

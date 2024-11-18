@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "@elasticemail/elasticemail-client": "^4.0.23",
     "@sendgrid/mail": "^8.1.4",
     "axios": "^1.7.7",
     "bcrypt": "^5.1.1",
